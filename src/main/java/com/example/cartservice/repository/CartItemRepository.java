@@ -1,2 +1,10 @@
-package com.example.cartservice.repository;public interface CartItemRepository {
+package com.example.cartservice.repository;
+
+import com.example.cartservice.model.CartItem;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+
+@Repository
+public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 }
