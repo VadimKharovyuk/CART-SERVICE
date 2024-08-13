@@ -40,7 +40,6 @@ public class CartService {
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
                     newCart.setUserId(cartItemDto.getUserId());
-                    newCart.setItems(new HashSet<>()); // Инициализация списка элементов
                     return cartRepository.save(newCart);
                 });
 
@@ -48,7 +47,7 @@ public class CartService {
         CartItem cartItem = new CartItem();
         cartItem.setProductId(cartItemDto.getProductId());
         cartItem.setProductName(cartItemDto.getProductName());
-        cartItem.setProductPrice(cartItemDto.getPrice()); // Установлено значение
+        cartItem.setProductPrice(cartItemDto.getPrice()); // Устанавливаем значение productPrice
         cartItem.setQuantity(cartItemDto.getQuantity());
         cartItem.setCart(cart);
 
@@ -77,6 +76,24 @@ public class CartService {
                 })
                 .collect(Collectors.toSet()));
         return cartDto;
+    }
+    public void removeItemFromCart(Long userId, Long itemId) {
+        // Найти корзину пользователя
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Cart not found for user id " + userId));
+
+        // Найти элемент корзины по ID
+        CartItem cartItem = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Cart item not found with id " + itemId));
+
+        // Удалить элемент корзины из корзины
+        cart.getItems().remove(cartItem);
+
+        // Удалить элемент корзины из базы данных
+        cartItemRepository.delete(cartItem);
+
+        // Сохранить обновленную корзину
+        cartRepository.save(cart);
     }
     }
 

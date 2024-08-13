@@ -47,4 +47,13 @@ public class CartController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // Ошибка сервера
         }
     }
+    @PostMapping("/items/{itemId}")
+    public ResponseEntity<Void> removeItemFromCart(@PathVariable Long itemId, @RequestParam Long userId) {
+        try {
+            cartService.removeItemFromCart(userId, itemId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
