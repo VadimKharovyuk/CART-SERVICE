@@ -3,6 +3,8 @@ package com.example.cartservice.controller;
 import com.example.cartservice.dto.CartDto;
 import com.example.cartservice.dto.CartItemDto;
 import com.example.cartservice.service.CartService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/carts")
 public class CartController {
 
+    private static final Logger logger = LoggerFactory.getLogger(CartController.class);
+
     @Autowired
     private CartService cartService;
 
@@ -20,10 +24,13 @@ public class CartController {
     public ResponseEntity<CartDto> getCart(@PathVariable("userId") Long userId) {
         try {
             CartDto cartDto = cartService.getCart(userId);
+            if (cartDto == null || cartDto.getItems().isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Корзина не найдена
+            }
             return new ResponseEntity<>(cartDto, HttpStatus.OK);
         } catch (Exception e) {
-            // Логирование и возврат ошибки
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // Если корзина не найдена
+            logger.error("Error retrieving cart for userId {}: {}", userId, e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // Ошибка сервера
         }
     }
 
@@ -32,9 +39,12 @@ public class CartController {
         try {
             cartService.addItemToCart(cartItemDto);
             return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid CartItemDto: {}", cartItemDto, e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Неверный запрос
         } catch (Exception e) {
-            // Логирование и возврат ошибки
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Если корзина не найдена или ошибка в запросе
+            logger.error("Error adding item to cart: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // Ошибка сервера
         }
     }
 }

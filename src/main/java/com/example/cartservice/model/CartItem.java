@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "cart_items")
 @AllArgsConstructor
@@ -27,6 +29,9 @@ public class CartItem {
 
     @Column(name = "product_name")
     private String productName;
+
+    @Column(name = "product_price")
+    private BigDecimal productPrice; // Добавлено поле
 
     @Column(name = "quantity", nullable = false)
     private int quantity;
